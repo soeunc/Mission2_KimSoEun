@@ -2,6 +2,7 @@ package com.example.shoppingmall.service;
 
 import com.example.shoppingmall.dto.CustomUserDetails;
 import com.example.shoppingmall.dto.RoleUserDetails;
+import com.example.shoppingmall.dto.UserDto;
 import com.example.shoppingmall.entity.Role;
 import com.example.shoppingmall.entity.UserEntity;
 import com.example.shoppingmall.jwt.JwtResponseDto;
@@ -14,8 +15,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Optional;
 
 @Slf4j
@@ -28,15 +33,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     // 회원 가입
-    public void registerUser(UserDetails user) {
+    public void register(UserDetails user) {
         if (manager.userExists(user.getUsername()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 존재하는 사용자입니다.");
 
         try {
             CustomUserDetails userDetails = (CustomUserDetails) user;
-
-//            Role defaultRole = Role.ROLE_INACTIVE;// 기본 역할 설정
-
+            
             UserEntity newUser = UserEntity.builder()
                     .username(userDetails.getUsername())
                     .password(passwordEncoder.encode(userDetails.getPassword()))
@@ -78,18 +81,18 @@ public class UserService {
     }
 
 
-    // 사용자 권한 업데이트
-    public String updateUserStatus(String username, UserDetails user){
-        // 디비에 아이디가 존재하고, 추가 정보를 기입하지 않은 사용자는 업데이트 한다.
-
+    // 비활성 사용자 -> 일반 사용자 업데이트
+    public void updateUser(String username, UserDetails user){
         Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
 
         if (optionalUser.isPresent()) {
             UserEntity existingUser = optionalUser.get();
             RoleUserDetails roleUserDetails = (RoleUserDetails) user;
+            log.info("유저 확인: {}", existingUser);
+            log.info("형변환 확인: {}", roleUserDetails);
 
+            // 해당정보가 전부 있어야 전환 가능
             if (roleUserDetails.inactiveToUser()) {
-                // 추가 정보가 있는 경우에만 업데이트 로직 수행
                 existingUser.setNickname(roleUserDetails.getNickname());
                 existingUser.setName(roleUserDetails.getName());
                 existingUser.setAge(roleUserDetails.getAge());
@@ -100,75 +103,71 @@ public class UserService {
                 log.info("Switch {} to ROLE_USER", username);
                 userRepository.save(existingUser);
             }
-
-            return username;
         } else {
             // 사용자가 존재하지 않는 경우의 처리
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "해당 사용자를 찾을 수 없습니다.");
+            log.info("{} is not found", username);
         }
+    }
 
+    // 일반 사용자 -> 사업자 사용자 업데이트
+    // 일반 사용자 임을 확인, 사업자 번호 확인
+    // 관리자가 전환 신청을 수락, 거절 할 수 있다. -- 어떻게?
+    public void updateBusinessUser(String username, UserDetails user){
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
 
+        if (optionalUser.isPresent()) {
+            UserEntity existingUser = optionalUser.get();
+            RoleUserDetails roleUserDetails = (RoleUserDetails) user;
+            log.info("형변환 확인: {}", roleUserDetails);
 
+            if (roleUserDetails.userToBusiness()) {
+                existingUser.setBusinessNumber(roleUserDetails.getBusinessNumber());
+                existingUser.setAuthorities(String.valueOf(Role.ROLE_BUSINESS_USER));
 
-//        if (manager.userExists(username))
-//            try {
-//                RoleUserDetails roleUserDetails = (RoleUserDetails) user;
-//
-//                if (roleUserDetails.inactiveToUser())
-//                    userRepository.updateUserStatus(username, Role.ROLE_USER.name());
-//
-//                UserEntity changeUser = UserEntity.builder()
-//                        .username(roleUserDetails.getUsername())
-//                        .password(passwordEncoder.encode(roleUserDetails.getPassword()))
-//                        .nickname(roleUserDetails.getNickname())
-//                        .name(roleUserDetails.getName())
-//                        .age(roleUserDetails.getAge())
-//                        .email(roleUserDetails.getEmail())
-//                        .phone(roleUserDetails.getPhone())
-//                        .authorities(String.valueOf(Role.ROLE_USER))
-//                        .build();
-//
-//                // UserRepository 업데이트 로직 추가 (DB에 반영)
-//                userRepository.save(changeUser);
-//                log.info("Switch {} to ROLE_USER", username);
-//
-//            } catch (ClassCastException e) {
-//                // 형변환 에러가 발생했을 때 예외처리(내부 서버 오류 처리)
-//                log.error("Failed Cast to: {}", CustomUserDetails.class);
-//                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-//            }
-//
-//        return username;
-//        if (userRepository.findByUsername(user.getUsername()).equals(user.getUsername()))
-//        // 비활성 사용자에서 일반 사용자로 전환하는 로직 추가
-//            if (user.getAuthorities().equals(Role.ROLE_INACTIVE))
-//                if (user.inactiveToUser()) {
-//                    userRepository.updateUserStatus(user.getUsername(), Role.ROLE_USER);
-//                }
+                log.info("Switch {} to ROLE_BUSINESS_USER", username);
+                userRepository.save(existingUser);
+            }
+        } else {
+            // 사용자가 존재하지 않는 경우의 처리
+            log.info("{} is not found", username);
+        }
     }
 
 
     // 사용자 프로필 업로드
-//    public UserDto updateUserAvatar(Long id, MultipartFile image) {
-//        // 1. 유저의 존재 확인
-//        Optional<UserEntity> optionalUser
-//                = userRepository.findById(id);
-//        if (optionalUser.isEmpty())
-//            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-//
-//        // 2. 파일을 어디에 업로드 할건지 결정
-//        // media/{id}/profile.{확장자}
-//        // 2-1. (없다면) 폴더를 만들어야 한다. (media/{id}/)
-//        String profileDir = String.format("media/%d/", id);
-//        log.info(profileDir);
-//        // 주어진 Path를 기준으로, 없는 모든 디렉토리를 생성하는 메서드
-//        try {
-//            Files.createDirectories(Path.of(profileDir));
-//        } catch (IOException e) {
-//            // 폴더를 만드는데 실패하면 기록을하고 사용자에게 알림
-//            log.error(e.getMessage());
-//            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
+    public UserDto updateUserAvatar(Long id, MultipartFile image) {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty())
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        String profileDir = String.format("media/%d/", id);
+        try {
+            Files.createDirectories(Path.of(profileDir));
+        } catch (IOException e) {
+            log.info("폴더 만들기 실패");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        String originalFileName = image.getOriginalFilename();
+        String[] fileNameSplit = originalFileName.split("\\.");
+        String extension = fileNameSplit[fileNameSplit.length - 1];
+        log.info("확장명: {}", extension);
+        String profileFileName = "profile." + extension;
+
+        String profilePath = profileDir + profileFileName;
+        log.info(profilePath);
+        try {
+            image.transferTo(Path.of(profilePath));
+        } catch (IOException e) {
+            log.info("파일 저장 실패");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        String requestPath = String.format("/static/%d/%s", id, profileFileName);
+        log.info(requestPath);
+        // 빌더를 사용하면 아이디와 비밀번호를 빌더하지 않으면 null이 들어가면 안되서
+        // 에러 발생 따로 만들어서 저장
+        UserEntity userImage = optionalUser.get();
+        userImage.setAvatar(requestPath);
+        return UserDto.fromEntity(userRepository.save(userImage));
+    }
 
 
 

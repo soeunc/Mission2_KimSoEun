@@ -13,7 +13,6 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -46,7 +45,6 @@ public class JpaUserDetailsService implements UserDetailsManager {
         UserEntity entity = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("username not found" + username));
 
-
         return CustomUserDetails.builder()
                 .username(entity.getUsername())
                 .password(entity.getPassword())
@@ -63,24 +61,15 @@ public class JpaUserDetailsService implements UserDetailsManager {
         try {
             CustomUserDetails userDetails = (CustomUserDetails) user;
 
-            /*Role defaultRole = Role.ROLE_INACTIVE;// 기본 역할 설정
-        if (Objects.equals(user.getUsername(), "admin"))
-            defaultRole =  Role.ROLE_ADMIN;
-        // TODO 이제 일반 사용자로 전화하는 로직만 추가해야한다.
-        CustomUserDetails userDetails1 = new CustomUserDetails();
-        if (userDetails1.inactiveToUser()) {
-            defaultRole = Role.ROLE_USER;
-            // 비활성 사용자에서 일반 사용자로 전환하는 로직 추가
-            updateUserStatus(user.getUsername(), UserStatus.ACTIVE);
-        }*/
+            UserEntity newUser = UserEntity.builder()
+                    .username(userDetails.getUsername())
+                    // 비밀번호를 인코딩하여 안전하게 저장- 하려고 했더니 안된다.
+                    .password(userDetails.getPassword())
+                    .authorities(userDetails.getRawAuthorities())
+                    .build();
 
-        UserEntity newUser = UserEntity.builder()
-                .username(userDetails.getUsername())
-                // 비밀번호를 인코딩하여 안전하게 저장- 하려고 했더니 안된다.
-                .password(userDetails.getPassword())
-                .authorities(userDetails.getRawAuthorities())
-                .build();
-        userRepository.save(newUser);
+            userRepository.save(newUser);
+
         } catch (ClassCastException e) {
             // 형변환 에러가 발생했을 때 예외처리(내부 서버 오류 처리)
             log.error("Failed Cast to: {}", CustomUserDetails.class);

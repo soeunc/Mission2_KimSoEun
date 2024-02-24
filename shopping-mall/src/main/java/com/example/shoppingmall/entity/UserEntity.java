@@ -6,7 +6,7 @@ import lombok.*;
 @Getter
 @Entity
 @Builder
-@Table
+//@Table(name = "user")
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
@@ -28,11 +28,9 @@ public class UserEntity {
     @Setter
     private String phone;
     @Setter
+    private String businessNumber;
+    @Setter
     private String authorities;
-    private Role role;
     @Setter
     private String avatar;
-    private boolean upgrade;
-
-
 }

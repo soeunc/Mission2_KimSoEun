@@ -8,10 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
@@ -30,18 +26,19 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/shops",
                                 "/shops/login",
                                 "/shops/register",
-                                "/shops/update-status"
+                                "/shops/update-user",
+                                "/shops/update-business",
+                                "/shops/{userId}/avatar"
                         )
                         .permitAll()
-                        .requestMatchers(
-                                "/shops/home",
-                                "/shops/changeUser",
-                                "/shops/update-status"
-                        )
-                        .authenticated()
+//                        .requestMatchers(
+//                                "/shops/home",
+//                                "/shops/changeUser",
+//                                "/shops/update-user"
+//                        )
+//                        .authenticated()
 
                         .anyRequest()
                         .authenticated()
