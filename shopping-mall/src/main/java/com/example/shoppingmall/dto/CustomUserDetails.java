@@ -36,7 +36,7 @@ public class CustomUserDetails implements UserDetails {
                 && age != null && email != null && phone != null;
     }
 
-    // 사업자 번호를 가지고 있고, 일반 사용자만이 사업자 사용자로 전환 가능
+    // 사업자 번호를 가지고 있어야 사업자 사용자 전환
     public boolean userToBusiness() {
         return businessNumber != null;
     }
@@ -48,7 +48,6 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> grantedAuthorities  = new ArrayList<>();
-        // authorities가 null
         if (this.authorities != null) {
             String[] rawAuthorities = authorities.split(",");
             for (String rawAuthority : rawAuthorities) {

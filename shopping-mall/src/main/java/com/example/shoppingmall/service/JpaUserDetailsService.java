@@ -36,8 +36,7 @@ public class JpaUserDetailsService implements UserDetailsManager {
     }
 
     @Override
-    // formLogin 등 Spring Security 내부에서
-    // 인증을 처리할 때 사용하는 메서드
+    // Spring Security 내부에서 인증을 처리할 때 사용하는 메서드
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
 
@@ -45,7 +44,6 @@ public class JpaUserDetailsService implements UserDetailsManager {
             throw new UsernameNotFoundException(username);
         UserEntity entity = optionalUser.get();
 
-        // 나중에 아이디와 비번 빼고 버릴 수 있음 버리기
         return CustomUserDetails.builder()
                 .id(entity.getId())
                 .username(entity.getUsername())
@@ -71,7 +69,6 @@ public class JpaUserDetailsService implements UserDetailsManager {
 
             UserEntity newUser = UserEntity.builder()
                     .username(userDetails.getUsername())
-                    // 비밀번호를 인코딩하여 안전하게 저장- 하려고 했더니 안된다.
                     .password(userDetails.getPassword())
                     .authorities(userDetails.getRawAuthorities())
                     .build();

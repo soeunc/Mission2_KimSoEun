@@ -28,8 +28,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/shops/register",
                                 "/shops/login",
-//                                "/shops/update-user",
-//                                "/shops/update-business",
                                 "/shops/{userId}/avatar"
                         )
                         .permitAll()
@@ -52,12 +50,6 @@ public class SecurityConfig {
                         AuthorizationFilter.class
                 )
         ;
-
-
-
-
         return http.build();
     }
-
-
 }
