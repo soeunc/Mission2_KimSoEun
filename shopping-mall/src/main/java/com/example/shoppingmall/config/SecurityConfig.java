@@ -26,8 +26,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/shops/login",
                                 "/shops/register",
+                                "/shops/login",
                                 "/shops/update-user",
                                 "/shops/update-business",
                                 "/shops/{userId}/avatar"
@@ -52,12 +52,6 @@ public class SecurityConfig {
                         AuthorizationFilter.class
                 )
         ;
-
-
-
-
         return http.build();
     }
-
-
 }
