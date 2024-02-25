@@ -13,6 +13,8 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 
 @Slf4j
 @Service
@@ -37,17 +39,23 @@ public class JpaUserDetailsService implements UserDetailsManager {
     // formLogin 등 Spring Security 내부에서
     // 인증을 처리할 때 사용하는 메서드
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-//        Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
-//        if (optionalUser.isEmpty())
-//            throw new UsernameNotFoundException(username);
-//        UserEntity entity = optionalUser.get();
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
 
-        UserEntity entity = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("username not found" + username));
+        if (optionalUser.isEmpty())
+            throw new UsernameNotFoundException(username);
+        UserEntity entity = optionalUser.get();
 
+        // 나중에 아이디와 비번 빼고 버릴 수 있음 버리기
         return CustomUserDetails.builder()
+                .id(entity.getId())
                 .username(entity.getUsername())
                 .password(entity.getPassword())
+                .nickname(entity.getNickname())
+                .name(entity.getName())
+                .age(entity.getAge())
+                .email(entity.getEmail())
+                .phone(entity.getPhone())
+                .businessNumber(entity.getBusinessNumber())
                 .authorities(entity.getAuthorities())
                 .build();
     }

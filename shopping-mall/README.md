@@ -12,13 +12,18 @@ PUT / http://localhost:8080/shops/{userId}/avatar
 
 ### 로그인
 POST / http://localhost:8080/shops/login 
-- Body에 `username`와 `password`를 입력해 로그인합니다.
+- Body에 `username`와 `password`를 입력해 로그인합니다. 토큰을 반환 받습니다.
 
 ### 일반 사용자로 전환
 POST / http://localhost:8080/shops/update-user 
+- 비활성 사용자만 이용할 수 있습니다.
 - Params에 `username`와 Body에 `nickname`, `name`, `age`, `email`, `phone`을 입력합니다.
+- 로그인 시 반환 받은 토큰을 입력합니다.
   DB에 일반 사용자로 전환됐는지 확인합니다.
 
 ### 사업자 사용자로 전환
 POST / http://localhost:8080/shops/update-business 
-- Params에 `username`와 Body에 `businessNumber`를 입력합니다. DB에 사업자 사용자로 전환됐는지 확인합니다.
+- 일반 사용자만 이용할 수 있습니다.
+- Params에 `username`와 Body에 `businessNumber`를 입력합니다.
+- 로그인 시 반환 받은 토큰을 입력합니다.
+  DB에 사업자 사용자로 전환됐는지 확인합니다.

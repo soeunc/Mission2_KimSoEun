@@ -1,10 +1,10 @@
 package com.example.shoppingmall.service;
 
 import com.example.shoppingmall.dto.CustomUserDetails;
-import com.example.shoppingmall.dto.RoleUserDetails;
 import com.example.shoppingmall.dto.UserDto;
 import com.example.shoppingmall.entity.Role;
 import com.example.shoppingmall.entity.UserEntity;
+import com.example.shoppingmall.jwt.JwtRequestDto;
 import com.example.shoppingmall.jwt.JwtResponseDto;
 import com.example.shoppingmall.jwt.JwtTokenUtils;
 import com.example.shoppingmall.repo.UserRepository;
@@ -39,14 +39,18 @@ public class UserService {
 
         try {
             CustomUserDetails userDetails = (CustomUserDetails) user;
-            
+            log.info("기존 유저 Encoded Password: {}", passwordEncoder.encode(userDetails.getPassword()));
             UserEntity newUser = UserEntity.builder()
                     .username(userDetails.getUsername())
                     .password(passwordEncoder.encode(userDetails.getPassword()))
                     .authorities(Role.ROLE_INACTIVE.name())
                     .build();
-            log.info("NewUser! {} 회원 가입 완료", newUser);
+            log.info("userDetails 비번 확인: {}", userDetails.getPassword());
+            log.info("{} 회원 가입 완료", newUser);
             userRepository.save(newUser);
+            log.info("user 비번 확인: {}", user.getPassword());
+            log.info("newUser 비번 확인: {}", newUser.getPassword());
+            log.info("userDetails 비번 확인: {}", userDetails.getPassword());
 
         } catch (ClassCastException e) {
             // 형변환 에러가 발생했을 때 예외처리(내부 서버 오류 처리)
@@ -56,28 +60,25 @@ public class UserService {
     }
 
     // 로그인
-    public JwtResponseDto login(CustomUserDetails user) {
-        if (!manager.userExists(user.getUsername()))
-            // 인증 되지 않았다.
+    public JwtResponseDto login(JwtRequestDto dto) {
+        if (!manager.userExists(dto.getUsername()))
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-        UserDetails userDetails = manager.loadUserByUsername(user.getUsername());
-        log.info("User 정보 확인: {}", userDetails.toString());
-        log.info("User logged in: {}",userDetails.getUsername());
+        // 입력받은 아이디를 기준으로 아이디의 대한 정보르 usedetails에 할당
+        UserDetails userDetails = manager.loadUserByUsername(dto.getUsername());
+        log.info("User 비밀번호: {}", dto.getPassword());
+        log.info("userDetails 비밀번호: {}", userDetails.getPassword());
 
-        if (!passwordEncoder.matches(user.getPassword(), userDetails.getPassword()))
+        if (!passwordEncoder.matches(dto.getPassword(), userDetails.getPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "비밀번호가 일치하지 않습니다.");
-
-        log.info("User1 logged in: {}", userDetails.getUsername());
+        }
 
         // 토큰 발급
         String jwt = jwtTokenUtils.generateToken(userDetails);
         JwtResponseDto response = new JwtResponseDto();
         response.setToken(jwt);
-
         log.info("Token generated: {}", jwt);
 
         return response;
-
     }
 
 
@@ -87,17 +88,16 @@ public class UserService {
 
         if (optionalUser.isPresent()) {
             UserEntity existingUser = optionalUser.get();
-            RoleUserDetails roleUserDetails = (RoleUserDetails) user;
+            CustomUserDetails customUserDetails = (CustomUserDetails) user;
             log.info("유저 확인: {}", existingUser);
-            log.info("형변환 확인: {}", roleUserDetails);
+            log.info("형변환 확인: {}", customUserDetails);
 
-            // 해당정보가 전부 있어야 전환 가능
-            if (roleUserDetails.inactiveToUser()) {
-                existingUser.setNickname(roleUserDetails.getNickname());
-                existingUser.setName(roleUserDetails.getName());
-                existingUser.setAge(roleUserDetails.getAge());
-                existingUser.setEmail(roleUserDetails.getEmail());
-                existingUser.setPhone(roleUserDetails.getPhone());
+            if (customUserDetails.inactiveToUser()) {
+                existingUser.setNickname(customUserDetails.getNickname());
+                existingUser.setName(customUserDetails.getName());
+                existingUser.setAge(customUserDetails.getAge());
+                existingUser.setEmail(customUserDetails.getEmail());
+                existingUser.setPhone(customUserDetails.getPhone());
                 existingUser.setAuthorities(String.valueOf(Role.ROLE_USER));
 
                 log.info("Switch {} to ROLE_USER", username);
@@ -117,11 +117,11 @@ public class UserService {
 
         if (optionalUser.isPresent()) {
             UserEntity existingUser = optionalUser.get();
-            RoleUserDetails roleUserDetails = (RoleUserDetails) user;
-            log.info("형변환 확인: {}", roleUserDetails);
+            CustomUserDetails customUserDetails = (CustomUserDetails) user;
+            log.info("형변환 확인: {}", customUserDetails);
 
-            if (roleUserDetails.userToBusiness()) {
-                existingUser.setBusinessNumber(roleUserDetails.getBusinessNumber());
+            if (customUserDetails.userToBusiness()) {
+                existingUser.setBusinessNumber(customUserDetails.getBusinessNumber());
                 existingUser.setAuthorities(String.valueOf(Role.ROLE_BUSINESS_USER));
 
                 log.info("Switch {} to ROLE_BUSINESS_USER", username);
