@@ -1,8 +1,8 @@
 package com.example.shoppingmall;
 
 import com.example.shoppingmall.dto.CustomUserDetails;
+import com.example.shoppingmall.dto.RoleUserDetails;
 import com.example.shoppingmall.dto.UserDto;
-import com.example.shoppingmall.jwt.JwtRequestDto;
 import com.example.shoppingmall.jwt.JwtResponseDto;
 import com.example.shoppingmall.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/shops")
 @RequiredArgsConstructor
 public class UserController {
+    private final PasswordEncoder passwordEncoder;
     private final UserService service;
 
     @PostMapping("/register")
@@ -26,16 +27,16 @@ public class UserController {
             ) {
         service.register(CustomUserDetails.builder()
                 .username(username)
-                .password(password)
+                .password(passwordEncoder.encode(password))
                 .build());
         return String.format("%s 회원 가입 완료!", username);
     }
 
     @PostMapping("login")
     public JwtResponseDto login(
-            @RequestBody JwtRequestDto dto
+            @RequestBody  CustomUserDetails user
     ) {
-        return service.login(dto);
+        return service.login(user);
     }
 
     @GetMapping("/home")
@@ -51,7 +52,7 @@ public class UserController {
     @PostMapping("/update-user")
     public String updateUser(
             @RequestParam("username") String username,
-            @RequestBody CustomUserDetails user
+            @RequestBody RoleUserDetails user
     ) {
         service.updateUser(username, user);
         return String.format("%s, ROLE_USER로 전환!", username);
@@ -60,7 +61,7 @@ public class UserController {
     @PostMapping("/update-business")
     public String updateBusiness(
             @RequestParam("username") String username,
-            @RequestBody CustomUserDetails user
+            @RequestBody RoleUserDetails user
     ) {
         service.updateBusinessUser(username, user);
         return String.format("%s, ROLE_BUSINESS_USER로 전환!", username);

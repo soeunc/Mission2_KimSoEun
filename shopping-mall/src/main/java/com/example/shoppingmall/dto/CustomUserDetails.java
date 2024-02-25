@@ -14,32 +14,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
+    @Getter
     private Long id;
     private String username;
     private String password;
-    @Getter
-    private String nickname;
-    @Getter
-    private String name;
-    @Getter
-    private String age;
-    @Getter
-    private String email;
-    @Getter
-    private String phone;
-    @Getter
-    private String businessNumber;
     private String authorities;
+    private String avatar;
 
-    public boolean inactiveToUser() {
-        return nickname != null && name != null
-                && age != null && email != null && phone != null;
-    }
 
-    // 사업자 번호를 가지고 있고, 일반 사용자만이 사업자 사용자로 전환 가능
-    public boolean userToBusiness() {
-        return businessNumber != null;
-    }
 
     public String getRawAuthorities() {
         return this.authorities;
@@ -48,13 +30,12 @@ public class CustomUserDetails implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> grantedAuthorities  = new ArrayList<>();
-        if (this.authorities != null) {
-            String[] rawAuthorities = authorities.split(",");
-            for (String rawAuthority : rawAuthorities) {
-                // SimpleGrantedAuthority:Spring Security 내부에서 보통 String 형식의 권한을 표현하는 방식
-                grantedAuthorities.add(new SimpleGrantedAuthority(rawAuthority));
-            }
+        String[] rawAuthorities = authorities.split(",");
+        for (String rawAuthority : rawAuthorities) {
+            // SimpleGrantedAuthority:Spring Security 내부에서 보통 String 형식의 권한을 표현하는 방식
+            grantedAuthorities.add(new SimpleGrantedAuthority(rawAuthority));
         }
+
         return grantedAuthorities;
     }
 

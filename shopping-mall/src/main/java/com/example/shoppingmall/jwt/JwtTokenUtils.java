@@ -37,9 +37,6 @@ public class JwtTokenUtils {
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plusSeconds(60 * 60 * 24 * 7 * 2)));
 
-        jwtClaims.put("authorities", userDetails.getAuthorities());
-
-        log.info("토큰 정보: {}", jwtClaims);
         // jwt 발급
         return Jwts.builder()
                 .setClaims(jwtClaims)
