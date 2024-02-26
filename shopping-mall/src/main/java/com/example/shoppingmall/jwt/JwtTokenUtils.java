@@ -37,8 +37,6 @@ public class JwtTokenUtils {
                 .setIssuedAt(Date.from(now))
                 .setExpiration(Date.from(now.plusSeconds(60 * 60 * 24 * 7 * 2)));
 
-//        jwtClaims.put("authorities", userDetails.getAuthorities());
-
         log.info("토큰 정보: {}", jwtClaims);
         // jwt 발급
         return Jwts.builder()
@@ -59,7 +57,6 @@ public class JwtTokenUtils {
     }
 
     // 실제 데이터 payload 부분을 회수하는 메서드
-    // TODO 실제 어떻게 돌아오는지 보기
     public Claims parseClaims(String token) {
         return jwtParser
                 .parseClaimsJws(token)

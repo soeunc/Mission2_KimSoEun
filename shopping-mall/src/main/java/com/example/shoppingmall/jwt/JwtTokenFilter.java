@@ -20,18 +20,9 @@ import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
-// 발급받은 토큰 사용자에게 전달
-// SecurityContext에 사용자 정보를 등록하는 역할,
-// 로그인 이후에 클라이언트가 JWT 토큰을 이용하여 자원에 접근할 때 사용됩니다.
-// 사용자를 어떻게 인증을 할 것인가 하는 인증을 하기 위해 필터를 만든다.
 public class JwtTokenFilter extends OncePerRequestFilter {
-    // OncePerRequestFilter: 각 HTTP 요청에 대해 딱 한 번만 실행
-    // 필터 체인을 통과하는 동안 필터가 중복으로 실행되는 것을 방지하고, 순서 보장
-
     private final JwtTokenUtils jwtTokenUtils;
     private final UserDetailsManager manager;
-
-
 
     @Override
     protected void doFilterInternal(

@@ -110,8 +110,7 @@ public class UserService {
     }
 
     // 일반 사용자 -> 사업자 사용자 업데이트
-    // 일반 사용자 임을 확인, 사업자 번호 확인
-    // 관리자가 전환 신청을 수락, 거절 할 수 있다. -- 어떻게?
+    // TODO 관리자가 전환신청 목록을 확인 및 수락, 거절 가능 (구현 못함)
     public void updateBusinessUser(String username, UserDetails user){
         Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
 
@@ -162,8 +161,6 @@ public class UserService {
         }
         String requestPath = String.format("/static/%d/%s", id, profileFileName);
         log.info(requestPath);
-        // 빌더를 사용하면 아이디와 비밀번호를 빌더하지 않으면 null이 들어가면 안되서
-        // 에러 발생 따로 만들어서 저장
         UserEntity userImage = optionalUser.get();
         userImage.setAvatar(requestPath);
         return UserDto.fromEntity(userRepository.save(userImage));

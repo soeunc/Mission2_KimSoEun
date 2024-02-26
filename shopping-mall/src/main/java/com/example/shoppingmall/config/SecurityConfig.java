@@ -26,17 +26,34 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/shops/register",
-                                "/shops/login",
-                                "/shops/{userId}/avatar"
+                                "/users/register",
+                                "/users/login",
+                                "/users/{userId}/avatar",
+                                "/shops"
                         )
                         .permitAll()
 
-                        .requestMatchers("/shops/update-user")
+                        .requestMatchers("/users/update-user")
                         .hasRole("INACTIVE")
 
-                                .requestMatchers("/shops/update-business")
+                        .requestMatchers(
+                                "/users/update-business",
+                                "/shops/{userId}/create"
+                        )
                         .hasRole("USER")
+
+                        .requestMatchers(
+                                "/shops/{itemId}",
+                                "/shops/{userId}/{itemId}/update",
+                                "/shops/{userId}/{itemId}/delete"
+                        )
+                        .hasAnyRole("USER", "BUSINESS_USER","ADMIN")
+
+                        .requestMatchers(
+                                "/shops/{userId}/{itemId}/update",
+                                "/shops/{userId}/{itemId}/delete"
+                        )
+                        .hasAuthority("WRITE_AUTHORITY")
 
                         .anyRequest()
                         .authenticated()

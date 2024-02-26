@@ -7,13 +7,12 @@ import com.example.shoppingmall.jwt.JwtResponseDto;
 import com.example.shoppingmall.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RestController
-@RequestMapping("/shops")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
     private final UserService service;
@@ -36,16 +35,6 @@ public class UserController {
     ) {
         return service.login(user);
     }
-
-    @GetMapping("/home")
-    public String home(
-            Authentication authentication
-    ) {
-        log.info(authentication.getName());
-        return "redirect:/shops/login";
-    }
-
-    // get 으로 일반사용자를 위한 정보를 넣을 수 있는 폼이 필요하다.
 
     @PostMapping("/update-user")
     public String updateUser(

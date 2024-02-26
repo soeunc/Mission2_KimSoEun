@@ -33,4 +33,5 @@ public class UserEntity {
     private String authorities;
     @Setter
     private String avatar;
+
 }
