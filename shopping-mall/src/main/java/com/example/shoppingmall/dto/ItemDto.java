@@ -1,7 +1,7 @@
 package com.example.shoppingmall.dto;
 
 import com.example.shoppingmall.entity.Item;
-import com.example.shoppingmall.entity.UserEntity;
+import com.example.shoppingmall.entity.OrderOffer;
 import lombok.*;
 
 @Getter
@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ItemDto {
     private Long id;
+    private String sellerName;
     @Setter
     private String title;
     @Setter
@@ -20,18 +21,18 @@ public class ItemDto {
     @Setter
     private Integer minPrice;
     private String state;
-    private UserEntity user;
+    private OrderOffer offer;
 
+    // 사용자 정보는 제공 x
     public static ItemDto fromEntity(Item entity) {
         return ItemDto.builder()
                 .id(entity.getId())
+                .sellerName(entity.getSellerName())
                 .title(entity.getTitle())
                 .description(entity.getDescription())
                 .titleImage(entity.getTitleImage())
                 .minPrice(entity.getMinPrice())
                 .state(entity.getState())
-                // 사용자 상세 정보 공개 x
-//                .user(entity.getUser())
                 .build();
     }
 }

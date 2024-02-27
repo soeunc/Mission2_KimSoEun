@@ -1,6 +1,7 @@
 package com.example.shoppingmall;
 
 import com.example.shoppingmall.dto.ItemDto;
+import com.example.shoppingmall.dto.OrderOfferDto;
 import com.example.shoppingmall.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +16,11 @@ import java.util.List;
 public class ItemController {
     private final ItemService service;
 
-    @PostMapping("/{userId}/create")
+    @PostMapping("/create")
     public ItemDto create(
-            @PathVariable("userId") Long userId,
             @RequestBody ItemDto dto
     ) {
-        return service.create(userId, dto);
+        return service.create(dto);
     }
 
     @GetMapping
@@ -35,20 +35,35 @@ public class ItemController {
         return service.readOne(itemId);
     }
 
-    @PutMapping("/{userId}/{itemId}/update")
+    @PutMapping("/{itemId}/update")
     public ItemDto update(
-            @PathVariable("userId") Long userId,
             @PathVariable("itemId") Long itemId,
             @RequestBody ItemDto dto
     ) {
-        return service.update(userId, itemId, dto);
+        return service.update(itemId, dto);
     }
 
-    @DeleteMapping("/{userId}/{itemId}/delete")
+    @DeleteMapping("/{itemId}/delete")
     public void delete(
-            @PathVariable("userId") Long userId,
             @PathVariable("itemId") Long itemId
     ) {
-        service.delete(userId, itemId);
+        service.delete(itemId);
+    }
+
+    @PostMapping("/{itemId}/offers")
+    public OrderOfferDto offer(
+            @PathVariable("itemId") Long itemId
+    ) {
+        return service.offer(itemId);
+    }
+
+    @GetMapping("/offer/read-offer")
+    public List<OrderOfferDto> readOffer() {
+        return service.readOffer();
+    }
+
+    @GetMapping("/offer/read-seller")
+    public List<OrderOfferDto> readSeller() {
+        return service.readSeller();
     }
 }

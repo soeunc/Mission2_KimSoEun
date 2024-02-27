@@ -37,23 +37,27 @@ public class SecurityConfig {
                         .hasRole("INACTIVE")
 
                         .requestMatchers(
-                                "/users/update-business",
-                                "/shops/{userId}/create"
+                                "/users/update-business"
                         )
                         .hasRole("USER")
 
                         .requestMatchers(
                                 "/shops/{itemId}",
-                                "/shops/{userId}/{itemId}/update",
-                                "/shops/{userId}/{itemId}/delete"
+                                "/shops/create",
+                                "/shops/{itemId}/offers"
                         )
-                        .hasAnyRole("USER", "BUSINESS_USER","ADMIN")
+                        .hasAnyRole("USER", "BUSINESS","ADMIN", "OFFER")
 
                         .requestMatchers(
-                                "/shops/{userId}/{itemId}/update",
-                                "/shops/{userId}/{itemId}/delete"
+                                "/shops/{itemId}",
+                                "/shops/{itemId}/update",
+                                "/shops/{itemId}/delete",
+                                "/shops/offer/read-seller"
                         )
-                        .hasAuthority("WRITE_AUTHORITY")
+                        .hasRole("SELLER")
+
+                        .requestMatchers("/shops/offer/read-offer")
+                        .hasRole("OFFER")
 
                         .anyRequest()
                         .authenticated()

@@ -3,6 +3,9 @@ package com.example.shoppingmall.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Entity
 @Builder
@@ -33,5 +36,8 @@ public class UserEntity {
     private String authorities;
     @Setter
     private String avatar;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<OrderOffer> orderOffers = new ArrayList<>();
 
 }

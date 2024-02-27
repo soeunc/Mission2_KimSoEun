@@ -29,12 +29,12 @@ POST / http://localhost:8080/users/update-business
   DB에 사업자 사용자로 전환됐는지 확인합니다.
 
 ### 중고거래 물품 등록
-POST / http://localhost:8080/shops/{userId}/create
+POST / http://localhost:8080/shops/create
 - 일반 사용자는 물품을 등록할 수 있다.
 - 여러 명의 일반 사용자를 만듭니다.
 - 토큰을 입력합니다.
-- userId를 바꾸면서 물픔을 등록합니다.
 - Body에 'title', 'description', 'minPrice'을 입력후 등록합니다. (대표 이미지는 반드시 등록할 필요없어서 제외하였습니다.)
+- 판매자로 변하여 물품의 대한 수정과 삭제의 권한을 같습니다.
 
 ### 물품 전체 조회
 GET / http://localhost:8080/shops
@@ -44,11 +44,30 @@ GET / http://localhost:8080/shops
 GET / http://localhost:8080/shops/{itemId}
 - 토큰을 입력하고, 상세 조회할 Id로 조회합니다.
 
-## 물픔 수정
-PUT /  http://localhost:8080/shops/{userId}/{itemId}/update
-- 작성자만 등록한 물픔을 수정할 수 있습니다.
-- Body에 'title', 'description', 'minPrice'을 입력후 수정합니다.
+### 물품 수정
+PUT /  http://localhost:8080/shops/{itemId}/update
+- 작성자(판매자)만 등록한 물픔을 수정할 수 있습니다.
+- 토큰 입력 후 Body에 'title', 'description', 'minPrice'을 입력후 수정합니다.
 
-## 물품 삭제
-DELETE / http://localhost:8080/shops/{userId}/{itemId}/delete
+### 물품 삭제
+DELETE / http://localhost:8080/shops/{itemId}/delete
 - 작성자만 등록한 물품을 삭제할 수 있습니다.
+- 토큰 입력 후 삭제합니다.
+
+### 물품 구매 제안
+POST / http://localhost:8080/shops/{itemId}/offers
+- 토큰 입력 후 원하는 아이템에 구매 제안합니다. 
+- 구매 제안한 사용자로 변합니다.
+
+### 구매 제안 목록 조회(판매자)
+GET / http://localhost:8080/shops/offer/read-seller
+- 판매자와 구매 제안한 사용자가 있어야합니다.
+- 토큰 입력 후 조회합니다.
+
+### 구매 제안 목록 조회(구매 제안한 사용자)
+GET / http://localhost:8080/shops/offer/read-offer
+- 구매 제안한 사용자가 있어야 합니다.
+- 토큰 입력 후 조회합니다.
+
+
+

@@ -121,7 +121,7 @@ public class UserService {
 
             if (customUserDetails.userToBusiness()) {
                 existingUser.setBusinessNumber(customUserDetails.getBusinessNumber());
-                existingUser.setAuthorities(String.valueOf(Role.ROLE_BUSINESS_USER));
+                existingUser.setAuthorities(String.valueOf(Role.ROLE_BUSINESS));
 
                 log.info("Switch {} to ROLE_BUSINESS_USER", username);
                 userRepository.save(existingUser);

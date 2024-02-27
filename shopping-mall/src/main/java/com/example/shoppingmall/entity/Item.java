@@ -2,7 +2,12 @@ package com.example.shoppingmall.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@Slf4j
 @Getter
 @Entity
 @Builder
@@ -13,6 +18,7 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String sellerName;
     @Column(nullable = false)
     @Setter
     private String title;
@@ -25,8 +31,14 @@ public class Item {
     @Setter
     private Integer minPrice;
     private String state;
+    private String authorities;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
+    @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
+    private List<OrderOffer> orderOffers = new ArrayList<>();
+
+
 }
