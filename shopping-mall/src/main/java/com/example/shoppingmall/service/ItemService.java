@@ -45,7 +45,7 @@ public class ItemService {
                         .title(dto.getTitle())
                         .description(dto.getDescription())
                         .minPrice(dto.getMinPrice())
-                        .state(State.SELLING.name())
+                        .status(State.SELLING.name())
                         .user(user)
                         .build();
 
@@ -53,8 +53,7 @@ public class ItemService {
             } else {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
-        }
-        else {
+        } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
@@ -139,7 +138,7 @@ public class ItemService {
                 userRepository.save(user);
 
                 log.info("구매 제안자: {}", currentUsername);
-                log.info("판매자: {}",item.getSellerName());
+                log.info("판매자: {}", item.getSellerName());
 
                 OrderOffer offer = OrderOffer.builder()
                         .item(item)
@@ -189,5 +188,45 @@ public class ItemService {
         }
     }
 
+    // 판매자의 구매 제안 응답
+    public ItemDto updateResponse(Long itemId, Long offerId, String response) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        OrderOffer offer = orderOfferRepository.findById(offerId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
+        if (!item.getOrderOffers().isEmpty()) {
+            if (offer.getOfferStatus().equals("수락") || offer.getOfferStatus().equals("거절")) {
+                item.setResponse(response);
+                return ItemDto.fromEntity(itemRepository.save(item));
+            }else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            }
+        } else  {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    // TODO 다시 생각해보기
+    // 구매 제안 확정 사용자의 응답
+    // 제안 응답(response)이 수락인 경우 구매 상태(offerStatus)가 확정으로 변경,
+    // 확정으로 변경되면 물품의 상태(item.status)가 솔드아웃으로 변경
+    // 또한 구매 상태가 확정이 아닌 경우에는 아이템의 구매제안(response)가 거절로 변경
+    public ItemDto updateStatus(Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (item.getResponse().equals("수락")) {
+            OrderOffer offer = OrderOffer.builder()
+                    .offerStatus("확정")
+                    .build();
+
+            orderOfferRepository.save(offer);
+            item.setStatus(State.SOLD_OUT.name());
+            return ItemDto.fromEntity(itemRepository.save(item));
+        } else {
+            item.setResponse("거절");
+            return ItemDto.fromEntity(itemRepository.save(item));
+        }
+    }
 }

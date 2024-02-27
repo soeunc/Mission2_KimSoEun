@@ -52,11 +52,14 @@ public class SecurityConfig {
                                 "/shops/{itemId}",
                                 "/shops/{itemId}/update",
                                 "/shops/{itemId}/delete",
-                                "/shops/offer/read-seller"
+                                "/shops/offer/read-seller",
+                                "shops/response/{itemId}/{offerId}"
                         )
                         .hasRole("SELLER")
 
-                        .requestMatchers("/shops/offer/read-offer")
+                        .requestMatchers(
+                                "/shops/offer/read-offer",
+                                "/shops/status/{itemId}")
                         .hasRole("OFFER")
 
                         .anyRequest()

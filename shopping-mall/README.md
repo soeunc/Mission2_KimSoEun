@@ -69,5 +69,15 @@ GET / http://localhost:8080/shops/offer/read-offer
 - 구매 제안한 사용자가 있어야 합니다.
 - 토큰 입력 후 조회합니다.
 
+### 판매자 구매 제안 응답
+PUT / http://localhost:8080/shops/response/{itemId}/{offerId}
+- 아이템에 대하여 구매 제안한 사용자 중에서 수락, 거절할 수 있다.
+- 토큰 입력 후 Params에 `response`입력 후 수락 또는 거절을 입력하여 응답합니다.
+
+### 구매 제안 사용자 응답
+PUT / http://localhost:8080/shops/status/{itemId}
+- 먼저 구매 제안한 사용자의 제안 목록을 조회하여 응답이 수락이 된 물품을 확인합니다.
+- 구매 제안 응답이 수락이면, 등록한 제안의 상태가 확정으로 변경됩니다.
+- 확정되면 물품은 SOLD_OUT 상태가 됩니다.
 
 

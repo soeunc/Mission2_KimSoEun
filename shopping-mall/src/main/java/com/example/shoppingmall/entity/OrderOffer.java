@@ -1,10 +1,7 @@
 package com.example.shoppingmall.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Getter
 @Entity
@@ -18,6 +15,8 @@ public class OrderOffer {
     private Long id;
     private String itemName;
     private String offerName;
+    @Setter
+    private String offerStatus;
 
     @ManyToOne
     @JoinColumn(name = "item_id")

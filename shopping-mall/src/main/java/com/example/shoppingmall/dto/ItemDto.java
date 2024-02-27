@@ -20,7 +20,9 @@ public class ItemDto {
     private String titleImage;
     @Setter
     private Integer minPrice;
-    private String state;
+    private String status;
+    @Setter
+    private String response;
     private OrderOffer offer;
 
     // 사용자 정보는 제공 x
@@ -32,7 +34,8 @@ public class ItemDto {
                 .description(entity.getDescription())
                 .titleImage(entity.getTitleImage())
                 .minPrice(entity.getMinPrice())
-                .state(entity.getState())
+                .status(entity.getStatus())
+                .response(entity.getResponse())
                 .build();
     }
 }

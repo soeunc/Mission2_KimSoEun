@@ -13,6 +13,8 @@ public class OrderOfferDto {
     private Long id;
     private String itemName;
     private String offerName;
+    private String offerStatus;
+
     private UserEntity user;
 
     public static OrderOfferDto fromEntity(OrderOffer entity) {
@@ -20,6 +22,7 @@ public class OrderOfferDto {
                 .id(entity.getId())
                 .itemName(entity.getItemName())
                 .offerName(entity.getOfferName())
+                .offerStatus(entity.getOfferStatus())
                 .build();
     }
 }

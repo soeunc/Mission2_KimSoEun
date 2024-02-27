@@ -30,8 +30,10 @@ public class Item {
     @Column(nullable = false)
     @Setter
     private Integer minPrice;
-    private String state;
-    private String authorities;
+    @Setter
+    private String status;
+    @Setter
+    private String response;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

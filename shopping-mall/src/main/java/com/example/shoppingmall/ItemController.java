@@ -66,4 +66,20 @@ public class ItemController {
     public List<OrderOfferDto> readSeller() {
         return service.readSeller();
     }
+
+    @PutMapping("/response/{itemId}/{offerId}")
+    public ItemDto updateResponse(
+            @PathVariable("itemId") Long itemId,
+            @PathVariable("offerId") Long offerId,
+            @RequestParam String response
+    ) {
+        return service.updateResponse(itemId, offerId, response);
+    }
+
+    @PutMapping("/status/{itemId}")
+    public ItemDto updateStatus(
+            @PathVariable("itemId") Long itemId
+    ) {
+        return service.updateStatus(itemId);
+    }
 }
