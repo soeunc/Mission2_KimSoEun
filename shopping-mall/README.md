@@ -1,5 +1,7 @@
 # 테스트 순서
-테스트는 Postman에서 진행한다.
+테스트는 Postman에서 진행한다.</br>
+사용자는 비활성, 일반, 사업자, 관리자 4종류가 있지만 저는 판매자와 제안자까지 추가하여 진행하였습니다.
+판매자와 제안자는 일반 사용자입니다.
 
 ### 회원 가입
 POST / http://localhost:8080/users/register
@@ -27,6 +29,10 @@ POST / http://localhost:8080/users/update-business
 - Params에 `username`와 Body에 `businessNumber`를 입력합니다.
 - 로그인 시 반환 받은 토큰을 입력합니다.
   DB에 사업자 사용자로 전환됐는지 확인합니다.
+
+### 사업자 사용자 전환 목록 조회
+GET / http://localhost:8080/users/read-business
+- 토큰 입력 후 조회합니다.
 
 ### 중고거래 물품 등록
 POST / http://localhost:8080/shops/create
@@ -70,14 +76,16 @@ GET / http://localhost:8080/shops/offer/read-offer
 - 토큰 입력 후 조회합니다.
 
 ### 판매자 구매 제안 응답
-PUT / http://localhost:8080/shops/response/{itemId}/{offerId}
+PUT / http://localhost:8080/shops/{itemId}/response/{offerId}
+- 아이템의 구매 제안 목록이 있어야 합니다.
 - 아이템에 대하여 구매 제안한 사용자 중에서 수락, 거절할 수 있다.
 - 토큰 입력 후 Params에 `response`입력 후 수락 또는 거절을 입력하여 응답합니다.
 
 ### 구매 제안 사용자 응답
-PUT / http://localhost:8080/shops/status/{itemId}
-- 먼저 구매 제안한 사용자의 제안 목록을 조회하여 응답이 수락이 된 물품을 확인합니다.
-- 구매 제안 응답이 수락이면, 등록한 제안의 상태가 확정으로 변경됩니다.
-- 확정되면 물품은 SOLD_OUT 상태가 됩니다.
+PUT / http://localhost:8080/shops/{itemId}/status/{offerId}
+- 먼저 구매 제안한 사용자의 제안 목록을 조회하여 제안 상태가 수락된 물품을 확인합니다.
+- 구매 제안 상태가 수락이면, 확정으로 변경됩니다.
+- 확정된 후 다시 [판매자 구매 제안 응답](http://localhost:8080/shops/{itemId}/response/{offerId})을 조회하면
+물품의 상태는 SOLD_OUT이 됩니다.
 
 

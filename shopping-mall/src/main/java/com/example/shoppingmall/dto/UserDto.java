@@ -14,10 +14,15 @@ public class UserDto {
     private String password;
     @Setter
     private String avatar;
+    private String authorities;
+    @Setter
+    private String businessStatus;
 
     public static UserDto fromEntity(UserEntity entity) {
         return UserDto.builder()
                 .avatar(entity.getAvatar())
+                .authorities(entity.getAuthorities())
+                .businessStatus(entity.getBusinessStatus())
                 .build();
     }
 

@@ -117,7 +117,7 @@ public class ItemService {
     }
 
     // 구매 제안 등록
-    public OrderOfferDto offer(Long itemId) {
+    public OrderOfferDto createOffer(Long itemId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
         Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
@@ -189,44 +189,80 @@ public class ItemService {
     }
 
     // 판매자의 구매 제안 응답
-    public ItemDto updateResponse(Long itemId, Long offerId, String response) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        OrderOffer offer = orderOfferRepository.findById(offerId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    public ItemDto updateResponse(Long itemId, Long offerId, ItemDto dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            log.info("권한: {}", user.getAuthorities());
 
-        if (!item.getOrderOffers().isEmpty()) {
-            if (offer.getOfferStatus().equals("수락") || offer.getOfferStatus().equals("거절")) {
-                item.setResponse(response);
-                return ItemDto.fromEntity(itemRepository.save(item));
-            }else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            Item item = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+            if (!item.getOrderOffers().isEmpty()) {
+                log.info("실행 확인");
+                OrderOffer offer = orderOfferRepository.findById(offerId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+                if (dto.getResponse().equals("수락")) {
+                    offer.setOfferStatus("수락");
+                    log.info("판매자 item 수락 응답 상태: {}", item.getResponse());
+                    orderOfferRepository.save(offer);
+
+                    item.setResponse(dto.getResponse());
+                    return ItemDto.fromEntity(itemRepository.save(item));
+                } else if (dto.getResponse().equals("거절")) {
+                    offer.setOfferStatus("거절");
+                    log.info("판매자 item 거절 응답 상태: {}", item.getResponse());
+                    orderOfferRepository.save(offer);
+                    item.setResponse(dto.getResponse());
+                    return ItemDto.fromEntity(itemRepository.save(item));
+                } else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
             }
-        } else  {
+        } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 
-
-    // TODO 다시 생각해보기
     // 구매 제안 확정 사용자의 응답
-    // 제안 응답(response)이 수락인 경우 구매 상태(offerStatus)가 확정으로 변경,
-    // 확정으로 변경되면 물품의 상태(item.status)가 솔드아웃으로 변경
-    // 또한 구매 상태가 확정이 아닌 경우에는 아이템의 구매제안(response)가 거절로 변경
-    public ItemDto updateStatus(Long itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        if (item.getResponse().equals("수락")) {
-            OrderOffer offer = OrderOffer.builder()
-                    .offerStatus("확정")
-                    .build();
+    public OrderOfferDto updateStatus(Long itemId, Long offerId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
 
-            orderOfferRepository.save(offer);
-            item.setStatus(State.SOLD_OUT.name());
-            return ItemDto.fromEntity(itemRepository.save(item));
-        } else {
-            item.setResponse("거절");
-            return ItemDto.fromEntity(itemRepository.save(item));
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            log.info("권한: {}", user.getAuthorities());
+
+            Item item = itemRepository.findById(itemId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+            if (!item.getOrderOffers().isEmpty()) {
+                log.info("실행 확인");
+                OrderOffer offer = orderOfferRepository.findById(offerId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+                if (offer.getOfferStatus().equals("수락")) {
+                    offer.setOfferStatus("확정");
+
+                    item.setStatus(State.SOLD_OUT.name());
+                    itemRepository.save(item);
+                    // TODO 다른 제안 상태들은 거절로 변경...
+
+                    return OrderOfferDto.fromEntity(orderOfferRepository.save(offer));
+                } else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+        }else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
 }

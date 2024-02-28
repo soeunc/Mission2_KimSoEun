@@ -1,5 +1,6 @@
 package com.example.shoppingmall;
 
+import com.example.shoppingmall.dto.BusinessResponseDto;
 import com.example.shoppingmall.dto.CustomUserDetails;
 import com.example.shoppingmall.dto.UserDto;
 import com.example.shoppingmall.jwt.JwtRequestDto;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -53,6 +56,12 @@ public class UserController {
         service.updateBusinessUser(username, user);
         return String.format("%s, ROLE_BUSINESS_USER로 전환!", username);
     }
+
+    @GetMapping("/read-business")
+    public List<BusinessResponseDto> readBusiness() {
+        return service.readBusiness();
+    }
+
     @PutMapping("/{userId}/avatar")
     public UserDto avatar(
             @PathVariable("userId") Long userId,
@@ -61,5 +70,11 @@ public class UserController {
         return service.updateUserAvatar(userId, imageFile);
     }
 
+    @PutMapping("/update-business/status")
+    public UserDto businessStatus(
+            @RequestBody UserDto dto
+    ) {
+        return service.businessStatus(dto);
+    }
 }
 

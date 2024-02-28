@@ -1,5 +1,6 @@
 package com.example.shoppingmall.service;
 
+import com.example.shoppingmall.dto.BusinessResponseDto;
 import com.example.shoppingmall.dto.CustomUserDetails;
 import com.example.shoppingmall.dto.UserDto;
 import com.example.shoppingmall.entity.Role;
@@ -11,6 +12,8 @@ import com.example.shoppingmall.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.UserDetailsManager;
@@ -21,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -110,7 +114,6 @@ public class UserService {
     }
 
     // 일반 사용자 -> 사업자 사용자 업데이트
-    // TODO 관리자가 전환신청 목록을 확인 및 수락, 거절 가능 (구현 못함)
     public void updateBusinessUser(String username, UserDetails user){
         Optional<UserEntity> optionalUser = userRepository.findByUsername(username);
 
@@ -132,6 +135,54 @@ public class UserService {
         }
     }
 
+    // 사업자 사용자 전환 신청 목록 조회
+    public List<BusinessResponseDto> readBusiness() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
+
+        if (optionalUser.isPresent()) {
+            List<UserEntity> userList = userRepository.findByAuthorities(Role.ROLE_BUSINESS.name());
+            return userList.stream()
+                    .map(BusinessResponseDto::fromEntity)
+                    .toList();
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // TODO 사업자 사용자에 상태 저장으로 수정 필요
+    // 사업자 사용자 전환 신청 응답
+    public UserDto businessStatus(UserDto dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
+        if (optionalUser.isPresent()) {
+            List<UserEntity> userList = userRepository.findByAuthorities(Role.ROLE_BUSINESS.name());
+            if (!userList.isEmpty()) {
+                if (dto.getBusinessStatus().equals("수락")) {
+                    UserEntity user = optionalUser.get();
+                    // 관리자의 상태가 수락으로 변경되면 안됨..
+                    // 비즈니스 사용자의 상태가 수락이 되야한다.
+                    user.setBusinessStatus("수락");
+
+                    return UserDto.fromEntity(userRepository.save(user));
+                } else if (dto.getBusinessStatus().equals("거절")) {
+                    UserEntity user = UserEntity.builder()
+                            .businessStatus("거절")
+                            .build();
+//                    dto.setBusinessStatus("거절");
+                    return UserDto.fromEntity(userRepository.save(user));
+                } else {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                }
+            } else {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            }
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
 
     // 사용자 프로필 업로드
     public UserDto updateUserAvatar(Long id, MultipartFile image) {

@@ -36,6 +36,8 @@ public class UserEntity {
     private String authorities;
     @Setter
     private String avatar;
+    @Setter
+    private String businessStatus;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<OrderOffer> orderOffers = new ArrayList<>();

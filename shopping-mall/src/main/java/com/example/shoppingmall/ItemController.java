@@ -54,7 +54,7 @@ public class ItemController {
     public OrderOfferDto offer(
             @PathVariable("itemId") Long itemId
     ) {
-        return service.offer(itemId);
+        return service.createOffer(itemId);
     }
 
     @GetMapping("/offer/read-offer")
@@ -67,19 +67,20 @@ public class ItemController {
         return service.readSeller();
     }
 
-    @PutMapping("/response/{itemId}/{offerId}")
+    @PutMapping("/{itemId}/response/{offerId}")
     public ItemDto updateResponse(
             @PathVariable("itemId") Long itemId,
             @PathVariable("offerId") Long offerId,
-            @RequestParam String response
+            @RequestBody ItemDto dto
     ) {
-        return service.updateResponse(itemId, offerId, response);
+        return service.updateResponse(itemId, offerId, dto);
     }
 
-    @PutMapping("/status/{itemId}")
-    public ItemDto updateStatus(
-            @PathVariable("itemId") Long itemId
+    @PutMapping("/{itemId}/status/{offerId}")
+    public OrderOfferDto updateStatus(
+            @PathVariable("itemId") Long itemId,
+            @PathVariable("offerId") Long offerId
     ) {
-        return service.updateStatus(itemId);
+        return service.updateStatus(itemId, offerId);
     }
 }

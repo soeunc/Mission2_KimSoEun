@@ -37,9 +37,15 @@ public class SecurityConfig {
                         .hasRole("INACTIVE")
 
                         .requestMatchers(
+                                "users/read-business",
+                                "users/update-business/status"
+                        )
+                        .hasRole("ADMIN")
+
+                        .requestMatchers(
                                 "/users/update-business"
                         )
-                        .hasRole("USER")
+                        .hasAnyRole("USER", "SELLER", "OFFER")
 
                         .requestMatchers(
                                 "/shops/{itemId}",
@@ -53,13 +59,13 @@ public class SecurityConfig {
                                 "/shops/{itemId}/update",
                                 "/shops/{itemId}/delete",
                                 "/shops/offer/read-seller",
-                                "shops/response/{itemId}/{offerId}"
+                                "/shops/{itemId}/response/{offerId}"
                         )
                         .hasRole("SELLER")
 
                         .requestMatchers(
                                 "/shops/offer/read-offer",
-                                "/shops/status/{itemId}")
+                                "/shops/{itemId}/status/{offerId}")
                         .hasRole("OFFER")
 
                         .anyRequest()
