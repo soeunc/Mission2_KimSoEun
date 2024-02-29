@@ -29,7 +29,7 @@ public class SecurityConfig {
                                 "/users/register",
                                 "/users/login",
                                 "/users/{userId}/avatar",
-                                "/shops"
+                                "/items"
                         )
                         .permitAll()
 
@@ -38,7 +38,10 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "users/read-business",
-                                "users/update-business/status"
+                                "users/update-business/status",
+                                "/shops/sub-list",
+                                "/shops/{shopId}/refusal",
+                                "/shops/{shopId}/delete"
                         )
                         .hasRole("ADMIN")
 
@@ -48,25 +51,32 @@ public class SecurityConfig {
                         .hasAnyRole("USER", "SELLER", "OFFER")
 
                         .requestMatchers(
-                                "/shops/{itemId}",
-                                "/shops/create",
-                                "/shops/{itemId}/offers"
+                                "/items/{itemId}",
+                                "/items/create",
+                                "/items/{itemId}/offers"
                         )
                         .hasAnyRole("USER", "BUSINESS","ADMIN", "OFFER")
 
                         .requestMatchers(
-                                "/shops/{itemId}",
-                                "/shops/{itemId}/update",
-                                "/shops/{itemId}/delete",
-                                "/shops/offer/read-seller",
-                                "/shops/{itemId}/response/{offerId}"
+                                "/items/{itemId}",
+                                "/items/{itemId}/update",
+                                "/items/{itemId}/delete",
+                                "/items/offer/read-seller",
+                                "/items/{itemId}/response/{offerId}"
                         )
                         .hasRole("SELLER")
 
                         .requestMatchers(
-                                "/shops/offer/read-offer",
-                                "/shops/{itemId}/status/{offerId}")
+                                "/items/offer/read-offer",
+                                "/items/{itemId}/status/{offerId}")
                         .hasRole("OFFER")
+
+                        .requestMatchers(
+                                "/shops/{shopId}/update",
+                                "/shops/request-open",
+                                "/shops/{shopId}/request-delete"
+                        )
+                        .hasRole("BUSINESS")
 
                         .anyRequest()
                         .authenticated()

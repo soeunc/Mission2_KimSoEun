@@ -6,7 +6,6 @@ import lombok.*;
 @Getter
 @Entity
 @Builder
-@Table(name = "offers_table")
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderOffer {

@@ -1,7 +1,7 @@
 package com.example.shoppingmall.service;
 
 import com.example.shoppingmall.dto.CustomUserDetails;
-import com.example.shoppingmall.entity.Role;
+import com.example.shoppingmall.entity.Enum.Role;
 import com.example.shoppingmall.entity.UserEntity;
 import com.example.shoppingmall.repo.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +30,11 @@ public class JpaUserDetailsService implements UserDetailsManager {
         createUser(CustomUserDetails.builder()
                 .username("admin")
                 .password(passwordEncoder.encode("password"))
+                .name("Admin")
+                .nickname("관리자_admin")
+                .age("35")
+                .email("admin@gmail.com")
+                .phone("010-1234-1234")
                 .authorities(Role.ROLE_ADMIN.name())
                 .build()
         );

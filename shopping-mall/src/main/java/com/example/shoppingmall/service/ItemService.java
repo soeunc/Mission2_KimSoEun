@@ -3,6 +3,8 @@ package com.example.shoppingmall.service;
 import com.example.shoppingmall.dto.ItemDto;
 import com.example.shoppingmall.dto.OrderOfferDto;
 import com.example.shoppingmall.entity.*;
+import com.example.shoppingmall.entity.Enum.Role;
+import com.example.shoppingmall.entity.Enum.State;
 import com.example.shoppingmall.repo.ItemRepository;
 import com.example.shoppingmall.repo.OrderOfferRepository;
 import com.example.shoppingmall.repo.UserRepository;
@@ -148,6 +150,7 @@ public class ItemService {
                         .build();
                 // 아이템의 구매제안을 아이템에 추가
                 item.getOrderOffers().add(offer);
+                itemRepository.save(item);
 
                 return OrderOfferDto.fromEntity(orderOfferRepository.save(offer));
             } else {

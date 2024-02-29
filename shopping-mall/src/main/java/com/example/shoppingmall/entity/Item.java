@@ -11,7 +11,6 @@ import java.util.List;
 @Getter
 @Entity
 @Builder
-@Table(name = "item_table")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item {
@@ -42,5 +41,8 @@ public class Item {
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<OrderOffer> orderOffers = new ArrayList<>();
 
+//    @ManyToOne
+//    @JoinColumn(name = "shop_id")
+//    private Shop shop;
 
 }

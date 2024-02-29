@@ -3,11 +3,14 @@ package com.example.shoppingmall.service;
 import com.example.shoppingmall.dto.BusinessResponseDto;
 import com.example.shoppingmall.dto.CustomUserDetails;
 import com.example.shoppingmall.dto.UserDto;
-import com.example.shoppingmall.entity.Role;
+import com.example.shoppingmall.entity.Enum.Role;
+import com.example.shoppingmall.entity.Enum.ShopStatus;
+import com.example.shoppingmall.entity.Shop;
 import com.example.shoppingmall.entity.UserEntity;
 import com.example.shoppingmall.jwt.JwtRequestDto;
 import com.example.shoppingmall.jwt.JwtResponseDto;
 import com.example.shoppingmall.jwt.JwtTokenUtils;
+import com.example.shoppingmall.repo.ShopRepository;
 import com.example.shoppingmall.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final ShopRepository shopRepository;
     private final JwtTokenUtils jwtTokenUtils;
     private final UserDetailsManager manager;
     private final PasswordEncoder passwordEncoder;
@@ -124,7 +128,19 @@ public class UserService {
 
             if (customUserDetails.userToBusiness()) {
                 existingUser.setBusinessNumber(customUserDetails.getBusinessNumber());
-                existingUser.setAuthorities(String.valueOf(Role.ROLE_BUSINESS));
+                existingUser.setAuthorities(Role.ROLE_BUSINESS.name());
+
+                // 쇼핑몰 준비중 상태 추가
+                Shop shop = Shop.builder()
+//                        .shopName("likeLion")
+//                        .introduction("잡화점")
+//                        .category(ShopCategory.food)
+                        .shopStatus(ShopStatus.PREPARING.name())
+                        .user(existingUser)
+                        .build();
+
+                existingUser.getShops().add(shop);
+                shopRepository.save(shop);
 
                 log.info("Switch {} to ROLE_BUSINESS_USER", username);
                 userRepository.save(existingUser);
@@ -164,14 +180,15 @@ public class UserService {
                     UserEntity user = optionalUser.get();
                     // 관리자의 상태가 수락으로 변경되면 안됨..
                     // 비즈니스 사용자의 상태가 수락이 되야한다.
-                    user.setBusinessStatus("수락");
+                    // 수락, 거절을 할 수 있다는 것은 사업자 사용자의 상태에 수락, 거절이 있어야된다..
+//                    user.setBusinessStatus("수락");
 
                     return UserDto.fromEntity(userRepository.save(user));
                 } else if (dto.getBusinessStatus().equals("거절")) {
-                    UserEntity user = UserEntity.builder()
-                            .businessStatus("거절")
-                            .build();
-//                    dto.setBusinessStatus("거절");
+                    UserEntity user = optionalUser.get();
+//                    UserEntity user = UserEntity.builder()
+//                            .businessStatus("거절")
+//                            .build();
                     return UserDto.fromEntity(userRepository.save(user));
                 } else {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST);

@@ -9,7 +9,6 @@ import java.util.List;
 @Getter
 @Entity
 @Builder
-@Table(name = "user_table")
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
@@ -41,5 +40,8 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<OrderOffer> orderOffers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Shop> shops = new ArrayList<>();
 
 }
