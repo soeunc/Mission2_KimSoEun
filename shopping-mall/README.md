@@ -104,3 +104,12 @@ POST / http://localhost:8080/shops/{shopId}/request-delete
 
 ### 쇼핑몰 폐쇄
 DELETE / http://localhost:8080/shops/{shopId}/delete
+
+### 상품 등록
+POST / http://localhost:8080/shops/{shopId}/create
+
+### 상품 수정
+PUT / http://localhost:8080/shops/{shopId}/{goodsId}/update
+
+### 상품 삭제
+DELETE / http://localhost:8080/shops/{shopId}/{goodsId}/delete

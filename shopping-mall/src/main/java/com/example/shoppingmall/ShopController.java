@@ -1,5 +1,6 @@
 package com.example.shoppingmall;
 
+import com.example.shoppingmall.dto.GoodsDto;
 import com.example.shoppingmall.dto.ShopDto;
 import com.example.shoppingmall.service.ShopService;
 import lombok.RequiredArgsConstructor;
@@ -58,4 +59,28 @@ public class ShopController {
         service.deleteShop(id);
     }
 
+    @PostMapping("/{shopId}/create")
+    public GoodsDto create(
+            @PathVariable("shopId") Long id,
+            @RequestBody GoodsDto dto
+    ) {
+        return service.create(id, dto);
+    }
+
+    @PutMapping("/{shopId}/{goodsId}/update")
+    public GoodsDto update(
+            @PathVariable("shopId") Long shopId,
+            @PathVariable("goodsId") Long goodsId,
+            @RequestBody GoodsDto dto
+    ) {
+        return service.update(shopId, goodsId, dto);
+    }
+
+    @DeleteMapping("/{shopId}/{goodsId}/delete")
+    public void delete(
+            @PathVariable("shopId") Long shopId,
+            @PathVariable("goodsId") Long goodsId
+    ) {
+        service.delete(shopId, goodsId);
+    }
 }

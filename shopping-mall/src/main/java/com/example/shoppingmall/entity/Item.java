@@ -41,8 +41,4 @@ public class Item {
     @OneToMany(mappedBy = "item", fetch = FetchType.LAZY)
     private List<OrderOffer> orderOffers = new ArrayList<>();
 
-//    @ManyToOne
-//    @JoinColumn(name = "shop_id")
-//    private Shop shop;
-
 }

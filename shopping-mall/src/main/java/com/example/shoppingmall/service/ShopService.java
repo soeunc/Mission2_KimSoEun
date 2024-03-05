@@ -1,9 +1,12 @@
 package com.example.shoppingmall.service;
 
+import com.example.shoppingmall.dto.GoodsDto;
 import com.example.shoppingmall.dto.ShopDto;
 import com.example.shoppingmall.entity.Enum.ShopStatus;
+import com.example.shoppingmall.entity.Goods;
 import com.example.shoppingmall.entity.Shop;
 import com.example.shoppingmall.entity.UserEntity;
+import com.example.shoppingmall.repo.GoodsRepository;
 import com.example.shoppingmall.repo.ShopRepository;
 import com.example.shoppingmall.repo.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class ShopService {
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
+    private final GoodsRepository goodsRepository;
 
     // 쇼핑몰 정보 수정
     public ShopDto updateShop(Long shopId, ShopDto dto) {
@@ -50,7 +54,7 @@ public class ShopService {
         }
     }
 
-    // TODO 신청하는 건데 새로운 쇼핑몰이 개설된다.
+    // TODO 문제점: 신청하는 건데 새로운 쇼핑몰이 개설된다.
     // 쇼핑몰 개설 신청
     public ShopDto requestOpen(ShopDto dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -118,7 +122,7 @@ public class ShopService {
         }
     }
 
-    // TODO 쇼핑몰 신청 요청과 같은 문제
+    // TODO 문제점: 쇼핑몰 신청 요청과 같은 문제
     // 쇼핑몰 페쇄 요청
     public ShopDto requestDel(Long shopId, ShopDto dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -162,4 +166,89 @@ public class ShopService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
     }
+
+    // 상품 등록
+    public GoodsDto create(Long shopId, GoodsDto dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            Shop shop = shopRepository.findById(shopId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+            // 로그인한 사용자가 쇼핑몰의 주인인지 확인하기
+            if (!user.getShops().contains(shop)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            Goods goods = Goods.builder()
+                    .name(dto.getName())
+                    .image(dto.getImage())
+                    .description(dto.getDescription())
+                    .price(dto.getPrice())
+                    .stock(dto.getStock())
+                    .shop(shop)
+                    .build();
+
+            return GoodsDto.fromEntity(goodsRepository.save(goods));
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // 상품 수정
+    public GoodsDto update(Long shopId, Long goodsId, GoodsDto dto) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            Shop shop = shopRepository.findById(shopId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+            if (!user.getShops().contains(shop)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            Goods goods = goodsRepository.findById(goodsId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+            goods.setName(dto.getName());
+            goods.setImage(dto.getImage());
+            goods.setDescription(dto.getDescription());
+            goods.setPrice(dto.getPrice());
+            goods.setStock(dto.getStock());
+
+            return GoodsDto.fromEntity(goodsRepository.save(goods));
+
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // 상품 삭제
+    public void delete(Long shopId, Long goodsId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            Shop shop = shopRepository.findById(shopId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+            if (!user.getShops().contains(shop)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+            }
+
+            goodsRepository.deleteById(goodsId);
+
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
 }

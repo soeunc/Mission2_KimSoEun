@@ -74,7 +74,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/shops/{shopId}/update",
                                 "/shops/request-open",
-                                "/shops/{shopId}/request-delete"
+                                "/shops/{shopId}/request-delete",
+                                "/shops/{shopId}/create",
+                                "/shops/{shopId}/{goodsId}/update",
+                                "/shops/{shopId}/{goodsId}/delete"
                         )
                         .hasRole("BUSINESS")
 
