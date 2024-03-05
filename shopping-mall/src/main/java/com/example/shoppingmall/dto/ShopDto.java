@@ -14,9 +14,13 @@ public class ShopDto {
     private String shopName;
     private String introduction;
     private ShopCategory category;
+    // 쇼핑몰 오픈 상태
     private String shopStatus;
+    // 쇼핑몰 개설 응답
     private String shopResponse;
+    // 개설 불가 이유
     private String reason;
+    // 폐쇄 이유
     private String deleteReason;
 
     public boolean condition =

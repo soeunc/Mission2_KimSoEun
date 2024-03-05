@@ -1,9 +1,8 @@
-# 테스트 순서
+# 테스트
 테스트는 Postman에서 진행합니다.</br></br>
-사용자는 비활성, 일반, 사업자, 관리자 4종류에 판매자와 제안자까지 추가하여 진행하였습니다.
-판매자와 제안자는 일반 사용자입니다.</br></br>
-발급 받은 토큰을 이용하여 인증을 진행합니다.
-관리자의 `id`: admin, `pw`: password로 설정하였습니다.
+사용자는 비활성, 일반, 사업자, 관리자 사용자 4종류에서 일반 사용자인 판매자와 제안자까지 추가하여 진행하였습니다.</br></br>
+발급 받은 토큰을 이용하여 인증을 진행합니다.</br></br>
+관리자는 `id`: admin, `pw`: password로 로그인 후 토큰을 발급받습니다.
 
 ## `Auth`
 ### 회원 가입
@@ -84,10 +83,12 @@ PUT / http://localhost:8080/items/{itemId}/status/{offerId}
 - 구매 제안 상태가 수락이면, 확정으로 변경됩니다.
 - 확정된 후 다시 [판매자 구매 제안 응답](http://localhost:8080/shops/{itemId}/response/{offerId})을 조회하면
 물품의 상태는 SOLD_OUT이 됩니다.
+- **구현못한 부분**: 구매 제안을 수락후 확정되지 않은 다른 구매 제안의 상태는 모두 거절하는 구현이 안됨.
 
 ## `Shop`
 ### 쇼핑몰 개설 신청
 POST / http://localhost:8080/shops/request-open
+- **구현못한 부분**: 개설 신청에 대해서 요청을 보내야하는데 새로운 쇼핑몰이 개설이 되는 문제가 발생
 
 ### 쇼핑몰 정보 수정
 PUT / http://localhost:8080/shops/{shopId}/update
@@ -101,15 +102,21 @@ POST / http://localhost:8080/shops/{shopId}/refusal
 
 ### 쇼핑몰 폐쇄 요청
 POST / http://localhost:8080/shops/{shopId}/request-delete
+- **구현못한 부분**: 쇼핑몰 개설 신청 요청과 같이 폐쇄 요청이 아닌 새로운 쇼핑몰이 개설되는 문제 발생
 
 ### 쇼핑몰 폐쇄
 DELETE / http://localhost:8080/shops/{shopId}/delete
 
 ### 상품 등록
 POST / http://localhost:8080/shops/{shopId}/create
+- **구현못한 부분**: 상품 이미지 등록
 
 ### 상품 수정
 PUT / http://localhost:8080/shops/{shopId}/{goodsId}/update
 
 ### 상품 삭제
 DELETE / http://localhost:8080/shops/{shopId}/{goodsId}/delete
+
+### 쇼핑몰 조회
+GET / http://localhost:8080/shops/search
+- **구현못한 부분**: 조건 없을 경우 최근 거래가 있던 순으로 조회가 문제

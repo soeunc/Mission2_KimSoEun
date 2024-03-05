@@ -2,6 +2,7 @@ package com.example.shoppingmall;
 
 import com.example.shoppingmall.dto.GoodsDto;
 import com.example.shoppingmall.dto.ShopDto;
+import com.example.shoppingmall.entity.Enum.ShopCategory;
 import com.example.shoppingmall.service.ShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,5 +83,13 @@ public class ShopController {
             @PathVariable("goodsId") Long goodsId
     ) {
         service.delete(shopId, goodsId);
+    }
+
+    @GetMapping("/search")
+    public List<ShopDto> searchShops(
+            @RequestParam(name = "shopName", required = false) String shopName,
+            @RequestParam(name = "category", required = false) ShopCategory category
+    ) {
+        return service.search(shopName, category);
     }
 }

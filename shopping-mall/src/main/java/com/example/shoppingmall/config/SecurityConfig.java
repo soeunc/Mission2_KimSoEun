@@ -81,6 +81,9 @@ public class SecurityConfig {
                         )
                         .hasRole("BUSINESS")
 
+                        .requestMatchers("/shops/search")
+                        .hasAnyRole("USER", "BUSINESS","ADMIN", "SELLER", "OFFER")
+
                         .anyRequest()
                         .authenticated()
 

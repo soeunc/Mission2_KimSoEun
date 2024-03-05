@@ -2,6 +2,7 @@ package com.example.shoppingmall.service;
 
 import com.example.shoppingmall.dto.GoodsDto;
 import com.example.shoppingmall.dto.ShopDto;
+import com.example.shoppingmall.entity.Enum.ShopCategory;
 import com.example.shoppingmall.entity.Enum.ShopStatus;
 import com.example.shoppingmall.entity.Goods;
 import com.example.shoppingmall.entity.Shop;
@@ -245,6 +246,34 @@ public class ShopService {
             }
 
             goodsRepository.deleteById(goodsId);
+
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    // TODO 조건 없을 경우 최근 거래가 있던 순으로 조회가 문제
+    // 쇼핑몰 조회
+    public List<ShopDto> search(String shopName, ShopCategory category) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+
+        Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
+        if (optionalUser.isPresent()) {
+
+            List<Shop> shops;
+            if (shopName != null && category != null) {
+                shops = shopRepository.findByShopNameAndCategory(shopName, category);
+            } else if (shopName != null) {
+                shops = shopRepository.findByShopName(shopName);
+            } else if (category != null) {
+                shops = shopRepository.findByCategory(category);
+            } else {
+                shops = shopRepository.findAllByOrderByIdDesc();
+            }
+            return shops.stream()
+                    .map(ShopDto::fromEntity)
+                    .toList();
 
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
