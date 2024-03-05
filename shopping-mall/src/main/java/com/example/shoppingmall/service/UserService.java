@@ -167,9 +167,8 @@ public class UserService {
         }
     }
 
-    // TODO 사업자 사용자에 상태 저장으로 수정 필요
     // 사업자 사용자 전환 신청 응답
-    public UserDto businessStatus(UserDto dto) {
+    public UserDto businessStatus(Long id, UserDto dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = authentication.getName();
         Optional<UserEntity> optionalUser = userRepository.findByUsername(currentUsername);
@@ -177,18 +176,15 @@ public class UserService {
             List<UserEntity> userList = userRepository.findByAuthorities(Role.ROLE_BUSINESS.name());
             if (!userList.isEmpty()) {
                 if (dto.getBusinessStatus().equals("수락")) {
-                    UserEntity user = optionalUser.get();
-                    // 관리자의 상태가 수락으로 변경되면 안됨..
-                    // 비즈니스 사용자의 상태가 수락이 되야한다.
-                    // 수락, 거절을 할 수 있다는 것은 사업자 사용자의 상태에 수락, 거절이 있어야된다..
-//                    user.setBusinessStatus("수락");
-
+                    UserEntity user = userRepository.findById(id)
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    user.setBusinessStatus("수락");
                     return UserDto.fromEntity(userRepository.save(user));
                 } else if (dto.getBusinessStatus().equals("거절")) {
-                    UserEntity user = optionalUser.get();
-//                    UserEntity user = UserEntity.builder()
-//                            .businessStatus("거절")
-//                            .build();
+                    UserEntity user = userRepository.findById(id)
+                            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                    user.setBusinessStatus("거절");
+                    user.setAuthorities(Role.ROLE_USER.name());
                     return UserDto.fromEntity(userRepository.save(user));
                 } else {
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST);

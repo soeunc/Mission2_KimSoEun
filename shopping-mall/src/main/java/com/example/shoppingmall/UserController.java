@@ -8,6 +8,7 @@ import com.example.shoppingmall.jwt.JwtResponseDto;
 import com.example.shoppingmall.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -62,19 +63,20 @@ public class UserController {
         return service.readBusiness();
     }
 
+    @PutMapping("/{id}/businessStatus")
+    public UserDto businessStatus(
+            @PathVariable("id") Long id,
+            @RequestBody UserDto dto
+    ) {
+        return service.businessStatus(id, dto);
+    }
+
     @PutMapping("/{userId}/avatar")
     public UserDto avatar(
             @PathVariable("userId") Long userId,
             @RequestParam("image") MultipartFile imageFile
     ) {
         return service.updateUserAvatar(userId, imageFile);
-    }
-
-    @PutMapping("/update-business/status")
-    public UserDto businessStatus(
-            @RequestBody UserDto dto
-    ) {
-        return service.businessStatus(dto);
     }
 }
 

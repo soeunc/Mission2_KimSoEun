@@ -36,6 +36,11 @@ POST / http://localhost:8080/users/update-business
 ### 사업자 사용자 전환 목록 조회
 GET / http://localhost:8080/users/read-business
 
+### 관리자 사업자 사용자 전환 신청 응답
+PUT / http://localhost:8080/users/{id}/businessStatus
+- 사업자 사용자 전환 수락 또는 거절 할 수 있습니다. 
+- 거절 시 일반 사용자로 유지됩니다.
+
 ## `Item`
 ### 중고거래 물품 등록
 POST / http://localhost:8080/items/create

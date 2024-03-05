@@ -38,7 +38,7 @@ public class SecurityConfig {
 
                         .requestMatchers(
                                 "users/read-business",
-                                "users/update-business/status",
+                                "users//{id}/businessStatus",
                                 "/shops/sub-list",
                                 "/shops/{shopId}/refusal",
                                 "/shops/{shopId}/delete"
